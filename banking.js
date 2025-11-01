@@ -87,6 +87,27 @@ function _addLedgerEntry(type, amount, operator) {
  * @return {string} The new balance as a string.
  */
 function addDepositRow(amount) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const configurationSheet = ss.getSheetByName("Configuration");
+  if (!configurationSheet) {
+    throw new Error('Sheet named "Configuration" could not be found.');
+  }
+  const maxBalanceRange = configurationSheet.getRange("B5");
+  const maxBalance = maxBalanceRange.getValue();
+
+  const ledgerSheet = ss.getSheetByName("Ledger");
+  if (!ledgerSheet) {
+    throw new Error('Sheet named "Ledger" could not be found.');
+  }
+  const lastRow = ledgerSheet.getLastRow();
+  const currentBalanceRange = ledgerSheet.getRange(lastRow, 4);
+  const currentBalance = currentBalanceRange.getValue();
+
+  if (currentBalance + amount > maxBalance) {
+    SpreadsheetApp.getUi().alert('Deposit failed: This transaction would exceed the maximum balance of ' + maxBalance);
+    return;
+  }
+
   return _addLedgerEntry("Deposit", amount, "+");
 }
 
