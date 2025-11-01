@@ -3,42 +3,44 @@
  * to calculate the latest interest payment.
  */
 function addInterestRow() {
-  // Get the active spreadsheet and then the specific sheet named "Ledger".
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const ledgerSheet = ss.getSheetByName("Ledger");
+  const configSheet = ss.getSheetByName("Configuration");
 
-  // Stop the script if the "Ledger" sheet doesn't exist.
   if (!ledgerSheet) {
     throw new Error('Error: Sheet named "Ledger" could not be found.');
   }
+  if (!configSheet) {
+    throw new Error('Error: Sheet named "Configuration" could not be found.');
+  }
 
-  // Get the number of the last row that contains data.
   const lastRow = ledgerSheet.getLastRow();
-  // The new row will be the next one down.
   const newRow = lastRow + 1;
 
+  // --- Get values for calculation ---
+  const interestRate = configSheet.getRange("B3").getValue();
+  if (typeof interestRate !== 'number' || interestRate <= 0) {
+    throw new Error('Invalid interest rate. Please check the Configuration sheet.');
+  }
+
+  const lastBalance = ledgerSheet.getRange(lastRow, 4).getValue();
+  if (typeof lastBalance !== 'number') {
+    throw new Error('Could not read the last balance from the Ledger sheet.');
+  }
+
+  // --- Perform calculations ---
+  const interestAmount = lastBalance * interestRate;
+  const newBalance = lastBalance + interestAmount;
+
   // --- Prepare the data for the new row ---
-
-  // 1. Get the current date for the 'Date' column.
   const currentDate = new Date();
-
-  // 2. Define the 'Type' column.
   const type = "Interest";
 
-  // 3. Create the formula for the 'Amount' column.
-  // This references the balance (column D) in the previous row.
-  const amountFormula = `=D${lastRow}*Configuration!$B$3`;
-
-  // 4. Create the formula for the 'Balance' column.
-  // This adds the new interest amount (column C of the new row)
-  // to the previous balance (column D of the last row).
-  const balanceFormula = `=D${lastRow}+C${newRow}`;
-
   // --- Write the data into the new row ---
-  ledgerSheet.getRange(newRow, 1).setValue(currentDate); // Column A: Date
-  ledgerSheet.getRange(newRow, 2).setValue(type);        // Column B: Type
-  ledgerSheet.getRange(newRow, 3).setFormula(amountFormula); // Column C: Amount
-  ledgerSheet.getRange(newRow, 4).setFormula(balanceFormula);  // Column D: Balance
+  ledgerSheet.getRange(newRow, 1).setValue(currentDate);      // Column A: Date
+  ledgerSheet.getRange(newRow, 2).setValue(type);             // Column B: Type
+  ledgerSheet.getRange(newRow, 3).setValue(interestAmount);   // Column C: Amount
+  ledgerSheet.getRange(newRow, 4).setValue(newBalance);       // Column D: Balance
 }
 
 /**
