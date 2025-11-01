@@ -9,6 +9,12 @@ function doGet() {
   const lastRow = ledgerSheet.getLastRow();
   const currentBalance = ledgerSheet.getRange(lastRow, 4).getDisplayValue();
 
+  const configSheet = ss.getSheetByName("Configuration");
+  let title = "Piggy Bank"; // Default title
+  if (configSheet) {
+    title = configSheet.getRange("B4").getValue() || title;
+  }
+
   const htmlOutput = `
     <style>
       body { font-family: Arial, sans-serif; text-align: center; padding-top: 50px; background-color: #f0f0f0; }
@@ -25,7 +31,7 @@ function doGet() {
       .withdraw:hover { background-color: #da190b; }
       .button:disabled { background-color: #cccccc; cursor: not-allowed; }
     </style>
-    <h1>Your Piggy Bank's Current Balance</h1>
+    <h1>${title}</h1>
     <div class="balance">${currentBalance}</div>
     <button class="button deposit" id="depositBtn" onclick="showDepositDialog()">Deposit</button>
     <button class="button withdraw" id="withdrawBtn" onclick="showWithdrawDialog()">Withdraw</button>
@@ -83,5 +89,5 @@ function doGet() {
     </script>
   `;
   
-  return HtmlService.createHtmlOutput(htmlOutput).setTitle('Piggy Bank Balance');
+  return HtmlService.createHtmlOutput(htmlOutput).setTitle(title);
 }
