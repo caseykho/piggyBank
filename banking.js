@@ -9,8 +9,7 @@ function addInterestRow() {
 
   // Stop the script if the "Ledger" sheet doesn't exist.
   if (!ledgerSheet) {
-    SpreadsheetApp.getUi().alert('Error: Sheet named "Ledger" could not be found.');
-    return;
+    throw new Error('Error: Sheet named "Ledger" could not be found.');
   }
 
   // Get the number of the last row that contains data.
@@ -104,8 +103,7 @@ function addDepositRow(amount) {
   const currentBalance = currentBalanceRange.getValue();
 
   if (currentBalance + amount > maxBalance) {
-    SpreadsheetApp.getUi().alert('Deposit failed: This transaction would exceed the maximum balance of ' + maxBalance);
-    return;
+    throw new Error('Deposit failed: This transaction would exceed the maximum balance of ' + maxBalance);
   }
 
   return _addLedgerEntry("Deposit", amount, "+");
