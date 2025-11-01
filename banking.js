@@ -115,5 +115,18 @@ function addDepositRow(amount) {
  * @return {string} The new balance as a string.
  */
 function addWithdrawalRow(amount) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ledgerSheet = ss.getSheetByName("Ledger");
+  if (!ledgerSheet) {
+    throw new Error('Sheet named "Ledger" could not be found.');
+  }
+  const lastRow = ledgerSheet.getLastRow();
+  const currentBalanceRange = ledgerSheet.getRange(lastRow, 4);
+  const currentBalance = currentBalanceRange.getValue();
+
+  if (amount > currentBalance) {
+    throw new Error('Withdrawal failed: Insufficient funds. You tried to withdraw ' + amount + ' but your balance is ' + currentBalance);
+  }
+
   return _addLedgerEntry("Withdrawal", amount, "-");
 }
