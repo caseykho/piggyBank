@@ -119,11 +119,13 @@ function doGet() {
           <button class="button withdraw" id="withdrawBtn" onclick="showTransactionForm('withdraw')">Withdraw</button>
         </div>
         <div class="transaction-form" id="transactionForm">
-          <input type="number" id="amountInput" placeholder="Enter amount" step="0.01" min="0.01">
-          <div class="form-buttons">
-            <button class="button" id="submitBtn">Submit</button>
-            <button class="button cancel" onclick="hideTransactionForm()">Cancel</button>
-          </div>
+          <form id="amountForm">
+            <input type="number" id="amountInput" placeholder="Enter amount" step="0.01" min="0.01">
+            <div class="form-buttons">
+              <button type="submit" class="button" id="submitBtn">Submit</button>
+              <button type="button" class="button cancel" onclick="hideTransactionForm()">Cancel</button>
+            </div>
+          </form>
         </div>
         <div class="message" id="messageArea"></div>
       </div>
@@ -136,7 +138,6 @@ function doGet() {
           document.getElementById('transactionForm').style.display = 'block';
           document.querySelector('.actions').style.display = 'none';
           document.getElementById('submitBtn').className = 'button deposit';
-          document.getElementById('submitBtn').onclick = submitTransaction;
         }
 
         function hideTransactionForm() {
@@ -192,6 +193,11 @@ function doGet() {
           messageArea.textContent = '';
           messageArea.className = 'message';
         }
+
+        document.getElementById('amountForm').addEventListener('submit', function(event) {
+          event.preventDefault();
+          submitTransaction();
+        });
       </script>
     </body>
     </html>
