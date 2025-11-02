@@ -138,6 +138,7 @@ function doGet() {
           document.getElementById('transactionForm').style.display = 'block';
           document.querySelector('.actions').style.display = 'none';
           document.getElementById('submitBtn').className = 'button deposit';
+          document.getElementById('amountInput').focus();
         }
 
         function hideTransactionForm() {
