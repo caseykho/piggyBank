@@ -29,8 +29,8 @@ function addInterestRow() {
   }
 
   // --- Perform calculations ---
-  const interestAmount = lastBalance * interestRate;
-  const newBalance = lastBalance + interestAmount;
+  const interestAmount = parseFloat((lastBalance * interestRate).toFixed(2));
+  const newBalance = parseFloat((lastBalance + interestAmount).toFixed(2));
 
   // --- Prepare the data for the new row ---
   const currentDate = new Date();
@@ -78,8 +78,8 @@ function _addLedgerEntry(type, amount, operator) {
   SpreadsheetApp.flush();
   
   // Get the newly calculated balance and return it.
-  const newBalance = ledgerSheet.getRange(newRow, 4).getDisplayValue();
-  return newBalance;
+  const newBalanceValue = ledgerSheet.getRange(newRow, 4).getValue();
+  return newBalanceValue.toFixed(2);
 }
 
 /**
