@@ -23,14 +23,30 @@ function addInterestRow() {
     throw new Error('Invalid interest rate. Please check the Configuration sheet.');
   }
 
+  const maxBalance = configSheet.getRange("B5").getValue();
+  if (typeof maxBalance !== 'number' || maxBalance <= 0) {
+    throw new Error('Invalid max balance. Please check the Configuration sheet.');
+  }
+
   const lastBalance = ledgerSheet.getRange(lastRow, 4).getValue();
   if (typeof lastBalance !== 'number') {
     throw new Error('Could not read the last balance from the Ledger sheet.');
   }
 
+  if (lastBalance >= maxBalance) {
+    console.log(`Interest calculation skipped: Current balance (${lastBalance.toFixed(2)}) is at or above the maximum balance (${maxBalance.toFixed(2)}).`);
+    return;
+  }
+
   // --- Perform calculations ---
-  const interestAmount = parseFloat((lastBalance * interestRate).toFixed(2));
-  const newBalance = parseFloat((lastBalance + interestAmount).toFixed(2));
+  let interestAmount = parseFloat((lastBalance * interestRate).toFixed(2));
+  let newBalance = parseFloat((lastBalance + interestAmount).toFixed(2));
+
+  if (newBalance > maxBalance) {
+    interestAmount = parseFloat((maxBalance - lastBalance).toFixed(2));
+    newBalance = maxBalance;
+    console.log(`Interest amount was capped to prevent exceeding the maximum balance.`);
+  }
 
   // --- Prepare the data for the new row ---
   const currentDate = new Date();
