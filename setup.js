@@ -28,7 +28,12 @@ function initSheets() {
   // Setup Ledger Sheet
   var ledgerSheet = spreadsheet.getSheetByName("Ledger");
   if (!ledgerSheet) {
-    ledgerSheet = spreadsheet.insertSheet("Ledger");
+    var sheet1 = spreadsheet.getSheetByName("Sheet1");
+    if (sheet1 && sheet1.getLastRow() === 0 && sheet1.getLastColumn() === 0) {
+      ledgerSheet = sheet1.setName("Ledger");
+    } else {
+      ledgerSheet = spreadsheet.insertSheet("Ledger");
+    }
   }
   ledgerSheet.getRange("A1:D1").setValues([["Date", "Type", "Amount", "Balance"]]);
 
