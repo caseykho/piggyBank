@@ -30,7 +30,7 @@ This method uses the [Command Line Apps Script Projects (clasp)](https://github.
     This command will upload all the `.js` and `appsscript.json` files to your Apps Script project.
 6.  **Run the setup function:**
     *   Open your Google Sheet and go to `Extensions > Apps Script`.
-    *   In the Apps Script editor, select the `initApp` function from the dropdown and click "Run". This will create the "Ledger" and "Configuration" sheets and set up the weekly trigger to add interest.
+    *   In the Apps Script editor, open the file setup.gs and then select the `initApp` function from the dropdown and click "Run". This will create the "Ledger" and "Configuration" sheets and set up the weekly trigger to add interest.
 7.  **Deploy the web app:**
     *   In the Apps Script editor, click the "Deploy" button in the top right.
     *   Select "New deployment".
