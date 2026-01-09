@@ -39,7 +39,9 @@ function initSheets() {
 
   // Bootstrap with an initial deposit if the sheet is new or empty except for header
   if (ledgerSheet.getLastRow() < 2) {
-    ledgerSheet.appendRow([new Date(), "Deposit", 0, 0]);
+    var today = new Date();
+    var formattedDate = Utilities.formatDate(today, spreadsheet.getSpreadsheetTimeZone(), "MM/dd/yyyy");
+    ledgerSheet.appendRow([formattedDate, "Deposit", 0, 0]);
   }
 
   // Setup Configuration Sheet
