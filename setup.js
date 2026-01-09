@@ -37,6 +37,11 @@ function initSheets() {
   }
   ledgerSheet.getRange("A1:D1").setValues([["Date", "Type", "Amount", "Balance"]]);
 
+  // Bootstrap with an initial deposit if the sheet is new or empty except for header
+  if (ledgerSheet.getLastRow() < 2) {
+    ledgerSheet.appendRow([new Date(), "Deposit", 0, 0]);
+  }
+
   // Setup Configuration Sheet
   var configSheet = spreadsheet.getSheetByName("Configuration");
   if (!configSheet) {
