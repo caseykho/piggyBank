@@ -42,12 +42,12 @@ function initSheets() {
   if (!configSheet) {
     configSheet = spreadsheet.insertSheet("Configuration");
   }
-  configSheet.getRange("A1:A5").setValues([
-    ["APY"],
-    ["Compounding Frequency (days)"],
-    ["Interest rate per period"],
-    ["Title"],
-    ["Max Balance"]
+  configSheet.getRange("A1:B5").setValues([
+    ["APY", "65%"],
+    ["Compounding Frequency (days)", 7],
+    ["Interest rate per period", 0.01246575342],
+    ["Title", "Piggy Bank"],
+    ["Max Balance", 60]
   ]);
 }
 
