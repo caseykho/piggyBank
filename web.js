@@ -7,8 +7,8 @@ function doGet() {
   }
 
   const lastRow = ledgerSheet.getLastRow();
-  const currentBalanceValue = ledgerSheet.getRange(lastRow, 4).getValue();
-  const currentBalance = typeof currentBalanceValue === 'number' ? currentBalanceValue.toFixed(2) : currentBalanceValue;
+  const currentBalanceValue = lastRow < 2 ? 0 : ledgerSheet.getRange(lastRow, 4).getValue();
+  const currentBalance = typeof currentBalanceValue === 'number' ? currentBalanceValue.toFixed(2) : "0.00";
 
   const configSheet = ss.getSheetByName("Configuration");
   let title = "Piggy Bank"; // Default title
