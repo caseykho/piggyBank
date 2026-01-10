@@ -182,6 +182,103 @@ function doGet() {
 
         .success { color: #16a34a; }
         .error { color: #dc2626; }
+
+        /* Theme toggle button */
+        .theme-toggle {
+          position: fixed;
+          bottom: 24px;
+          right: 24px;
+          width: 48px;
+          height: 48px;
+          border-radius: 50%;
+          border: none;
+          background: #ffffff;
+          box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.3s ease;
+          font-size: 20px;
+        }
+
+        .theme-toggle:hover {
+          transform: scale(1.05);
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .theme-toggle:active {
+          transform: scale(0.95);
+        }
+
+        /* Dark mode styles */
+        body.dark {
+          background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+          color: #e2e8f0;
+        }
+
+        body.dark .container {
+          background: #1e293b;
+          box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        body.dark h1 {
+          color: #f1f5f9;
+        }
+
+        body.dark .balance {
+          color: #f1f5f9;
+        }
+
+        body.dark .balance::before {
+          color: #94a3b8;
+        }
+
+        body.dark .balance-label {
+          color: #94a3b8;
+        }
+
+        body.dark .withdraw {
+          background: #475569;
+        }
+        body.dark .withdraw:hover {
+          background: #64748b;
+        }
+
+        body.dark .cancel {
+          background: #334155;
+          color: #94a3b8;
+        }
+        body.dark .cancel:hover {
+          background: #475569;
+        }
+
+        body.dark .button:disabled {
+          background: #334155;
+          color: #64748b;
+        }
+
+        body.dark input[type="number"] {
+          background: #0f172a;
+          border-color: #334155;
+          color: #f1f5f9;
+        }
+
+        body.dark input[type="number"]:focus {
+          border-color: #22c55e;
+        }
+
+        body.dark input[type="number"]::placeholder {
+          color: #64748b;
+        }
+
+        body.dark .theme-toggle {
+          background: #334155;
+          box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        body.dark .success { color: #4ade80; }
+        body.dark .error { color: #f87171; }
       </style>
     </head>
     <body>
@@ -206,8 +303,31 @@ function doGet() {
         </div>
         <div class="message" id="messageArea"></div>
       </div>
-      
+
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle dark mode">
+        <span id="themeIcon">🌙</span>
+      </button>
+
       <script>
+        // Theme toggle functionality
+        function toggleTheme() {
+          const body = document.body;
+          const icon = document.getElementById('themeIcon');
+          body.classList.toggle('dark');
+          const isDark = body.classList.contains('dark');
+          icon.textContent = isDark ? '☀️' : '🌙';
+          localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        }
+
+        // Load saved theme on page load
+        (function() {
+          const savedTheme = localStorage.getItem('theme');
+          if (savedTheme === 'dark') {
+            document.body.classList.add('dark');
+            document.getElementById('themeIcon').textContent = '☀️';
+          }
+        })();
+
         let currentTransactionType = '';
 
         function showTransactionForm(type) {
