@@ -23,6 +23,7 @@ function doGet() {
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 
         * {
           box-sizing: border-box;
@@ -199,7 +200,11 @@ function doGet() {
           align-items: center;
           justify-content: center;
           transition: all 0.3s ease;
-          font-size: 20px;
+          color: #64748b;
+        }
+
+        .theme-toggle .material-icons {
+          font-size: 24px;
         }
 
         .theme-toggle:hover {
@@ -275,6 +280,7 @@ function doGet() {
         body.dark .theme-toggle {
           background: #334155;
           box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+          color: #f1f5f9;
         }
 
         body.dark .success { color: #4ade80; }
@@ -305,7 +311,7 @@ function doGet() {
       </div>
 
       <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle dark mode">
-        <span id="themeIcon">🌙</span>
+        <span class="material-icons" id="themeIcon">dark_mode</span>
       </button>
 
       <script>
@@ -315,7 +321,7 @@ function doGet() {
           const icon = document.getElementById('themeIcon');
           body.classList.toggle('dark');
           const isDark = body.classList.contains('dark');
-          icon.textContent = isDark ? '☀️' : '🌙';
+          icon.textContent = isDark ? 'light_mode' : 'dark_mode';
           localStorage.setItem('theme', isDark ? 'dark' : 'light');
         }
 
@@ -324,7 +330,7 @@ function doGet() {
           const savedTheme = localStorage.getItem('theme');
           if (savedTheme === 'dark') {
             document.body.classList.add('dark');
-            document.getElementById('themeIcon').textContent = '☀️';
+            document.getElementById('themeIcon').textContent = 'light_mode';
           }
         })();
 
