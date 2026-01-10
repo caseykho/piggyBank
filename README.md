@@ -1,6 +1,6 @@
 # Piggy Bank Savings Account
 
-This Google Apps Script project turns a Google Sheet into a simple savings account ledger with interest calculations. It's been helpful in teaching a child the concept of (compound) interest and the benefits of saving.
+This Google Apps Script project turns a Google Sheet into a simple savings account ledger with interest calculations. It's been helpful to use as a simple yet usable bank account for teaching a child the concept of (compound) interest and the benefits of saving.
 
 <img src="screenshot.png" alt="Piggy Bank Screenshot" width="275">
 
