@@ -67,3 +67,6 @@ This method uses the [Command Line Apps Script Projects (clasp)](https://github.
 ## Usage
 
 Once set up, you can use the web app URL to add deposits and withdrawals to your ledger. The sheet will automatically calculate and add interest every week. You can customize the APY and other settings in the "Configuration" sheet.
+
+
+Pro tip: after setting up the app on desktop, bookmark the URL on your phone for easy access whenever you need to make a deposit or withdrawal.
