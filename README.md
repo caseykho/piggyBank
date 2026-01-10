@@ -2,6 +2,8 @@
 
 This Google Apps Script project turns a Google Sheet into a simple savings account ledger with interest calculations.
 
+<img src="screenshot.png" alt="Piggy Bank Screenshot" width="275">
+
 ## Setup
 
 There are two ways to set up this project: using `clasp` (recommended for developers) or manually copying the code.
