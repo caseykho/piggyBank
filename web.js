@@ -22,98 +22,278 @@ function doGet() {
     <head>
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
-        body { 
-          font-family: 'Roboto', sans-serif; 
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+
+        * {
+          box-sizing: border-box;
+        }
+
+        body {
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
           display: flex;
           flex-direction: column;
-          align-items: center; 
+          align-items: center;
           justify-content: center;
-          height: 100vh;
+          min-height: 100vh;
           margin: 0;
-          background-color: #f7f8fa;
-          color: #333;
+          background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+          color: #1a1a2e;
         }
+
         .container {
           text-align: center;
-          background: white;
-          padding: 40px;
-          border-radius: 12px;
-          box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+          background: #ffffff;
+          padding: 48px 40px;
+          border-radius: 20px;
+          box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
           width: 90%;
-          max-width: 400px;
+          max-width: 380px;
         }
-        h1 { 
-          color: #2c3e50; 
-          margin-bottom: 10px;
+
+        h1 {
+          color: #1a1a2e;
+          font-size: 22px;
+          font-weight: 600;
+          margin: 0 0 8px 0;
+          letter-spacing: -0.3px;
         }
-        .balance { 
-          font-size: 48px; 
-          color: #27ae60; 
-          font-weight: bold; 
-          margin-top: 10px; 
-          margin-bottom: 30px;
+
+        .balance-label {
+          font-size: 13px;
+          color: #6b7280;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          font-weight: 500;
+          margin-bottom: 4px;
         }
+
+        .balance-wrapper {
+          margin: 24px 0 32px 0;
+        }
+
+        .balance {
+          font-size: 52px;
+          color: #1a1a2e;
+          font-weight: 700;
+          letter-spacing: -2px;
+          line-height: 1;
+        }
+
+        .balance::before {
+          content: '$';
+          font-size: 28px;
+          font-weight: 500;
+          vertical-align: top;
+          margin-right: 2px;
+          color: #6b7280;
+          letter-spacing: 0;
+        }
+
         .actions {
           display: flex;
           justify-content: center;
-          gap: 15px;
-          margin-bottom: 30px;
+          gap: 12px;
         }
+
         .button {
-          border: none; 
-          color: white; 
-          padding: 15px 0;
+          border: none;
+          color: white;
+          padding: 14px 0;
           text-align: center;
-          text-decoration: none; 
-          font-size: 16px;
-          font-weight: bold;
-          cursor: pointer; 
-          border-radius: 8px; 
-          transition: background-color 0.3s, box-shadow 0.3s;
+          text-decoration: none;
+          font-size: 15px;
+          font-weight: 600;
+          cursor: pointer;
+          border-radius: 12px;
+          transition: all 0.2s ease;
           flex: 1;
-          box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+          letter-spacing: -0.2px;
         }
-        .deposit { background-color: #2ecc71; }
-        .deposit:hover { background-color: #27ae60; }
-        .withdraw { background-color: #e74c3c; }
-        .withdraw:hover { background-color: #c0392b; }
-        .cancel { background-color: #95a5a6; }
-        .cancel:hover { background-color: #7f8c8d; }
-        .button:disabled { 
-          background-color: #bdc3c7; 
-          cursor: not-allowed; 
-          box-shadow: none;
+
+        .button:active {
+          transform: scale(0.98);
         }
+
+        .deposit {
+          background: #22c55e;
+        }
+        .deposit:hover {
+          background: #16a34a;
+        }
+
+        .withdraw {
+          background: #64748b;
+        }
+        .withdraw:hover {
+          background: #475569;
+        }
+
+        .cancel {
+          background: #e2e8f0;
+          color: #64748b;
+        }
+        .cancel:hover {
+          background: #cbd5e1;
+        }
+
+        .button:disabled {
+          background: #e2e8f0;
+          color: #94a3b8;
+          cursor: not-allowed;
+          transform: none;
+        }
+
         .transaction-form {
           display: none;
-          margin-top: 20px;
+          margin-top: 24px;
         }
+
         input[type="number"] {
-          width: calc(100% - 24px);
-          padding: 12px;
-          margin-bottom: 15px;
-          border: 1px solid #ddd;
-          border-radius: 8px;
+          width: 100%;
+          padding: 14px 16px;
+          margin-bottom: 12px;
+          border: 2px solid #e2e8f0;
+          border-radius: 12px;
           font-size: 16px;
+          font-family: inherit;
+          transition: border-color 0.2s ease;
+          outline: none;
         }
+
+        input[type="number"]:focus {
+          border-color: #22c55e;
+        }
+
+        input[type="number"]::placeholder {
+          color: #94a3b8;
+        }
+
         .form-buttons {
           display: flex;
           gap: 10px;
         }
+
         .message {
           margin-top: 20px;
           font-size: 14px;
+          font-weight: 500;
           min-height: 20px;
         }
-        .success { color: #27ae60; }
-        .error { color: #e74c3c; }
+
+        .success { color: #16a34a; }
+        .error { color: #dc2626; }
+
+        /* Theme toggle button */
+        .theme-toggle {
+          position: fixed;
+          bottom: 24px;
+          right: 24px;
+          width: 48px;
+          height: 48px;
+          border-radius: 50%;
+          border: none;
+          background: #ffffff;
+          box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.3s ease;
+          color: #64748b;
+        }
+
+        .theme-toggle .material-icons {
+          font-size: 24px;
+        }
+
+        .theme-toggle:hover {
+          transform: scale(1.05);
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .theme-toggle:active {
+          transform: scale(0.95);
+        }
+
+        /* Dark mode styles */
+        body.dark {
+          background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+          color: #e2e8f0;
+        }
+
+        body.dark .container {
+          background: #1e293b;
+          box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        body.dark h1 {
+          color: #f1f5f9;
+        }
+
+        body.dark .balance {
+          color: #f1f5f9;
+        }
+
+        body.dark .balance::before {
+          color: #94a3b8;
+        }
+
+        body.dark .balance-label {
+          color: #94a3b8;
+        }
+
+        body.dark .withdraw {
+          background: #475569;
+        }
+        body.dark .withdraw:hover {
+          background: #64748b;
+        }
+
+        body.dark .cancel {
+          background: #334155;
+          color: #94a3b8;
+        }
+        body.dark .cancel:hover {
+          background: #475569;
+        }
+
+        body.dark .button:disabled {
+          background: #334155;
+          color: #64748b;
+        }
+
+        body.dark input[type="number"] {
+          background: #0f172a;
+          border-color: #334155;
+          color: #f1f5f9;
+        }
+
+        body.dark input[type="number"]:focus {
+          border-color: #22c55e;
+        }
+
+        body.dark input[type="number"]::placeholder {
+          color: #64748b;
+        }
+
+        body.dark .theme-toggle {
+          background: #334155;
+          box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+          color: #f1f5f9;
+        }
+
+        body.dark .success { color: #4ade80; }
+        body.dark .error { color: #f87171; }
       </style>
     </head>
     <body>
       <div class="container">
         <h1>${title}</h1>
-        <div class="balance">${currentBalance}</div>
+        <div class="balance-wrapper">
+          <div class="balance-label">Current Balance</div>
+          <div class="balance">${currentBalance}</div>
+        </div>
         <div class="actions">
           <button class="button deposit" id="depositBtn" onclick="showTransactionForm('deposit')">Deposit</button>
           <button class="button withdraw" id="withdrawBtn" onclick="showTransactionForm('withdraw')">Withdraw</button>
@@ -129,8 +309,31 @@ function doGet() {
         </div>
         <div class="message" id="messageArea"></div>
       </div>
-      
+
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle dark mode">
+        <span class="material-icons" id="themeIcon">dark_mode</span>
+      </button>
+
       <script>
+        // Theme toggle functionality
+        function toggleTheme() {
+          const body = document.body;
+          const icon = document.getElementById('themeIcon');
+          body.classList.toggle('dark');
+          const isDark = body.classList.contains('dark');
+          icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+          localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        }
+
+        // Load saved theme on page load
+        (function() {
+          const savedTheme = localStorage.getItem('theme');
+          if (savedTheme === 'dark') {
+            document.body.classList.add('dark');
+            document.getElementById('themeIcon').textContent = 'light_mode';
+          }
+        })();
+
         let currentTransactionType = '';
 
         function showTransactionForm(type) {
