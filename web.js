@@ -16,6 +16,9 @@ function doGet() {
     title = configSheet.getRange("B4").getValue() || title;
   }
 
+  // Escape "<" so sheet text can't close the <script> tag the JSON is embedded in.
+  const recentTransactionsJson = JSON.stringify(getRecentTransactions()).replace(/</g, '\\u003c');
+
   const htmlOutput = `
     <!DOCTYPE html>
     <html>
@@ -37,6 +40,8 @@ function doGet() {
           justify-content: center;
           min-height: 100vh;
           margin: 0;
+          /* Extra bottom padding keeps the ledger clear of the fixed theme toggle */
+          padding: 24px 0 96px 0;
           background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
           color: #1a1a2e;
         }
@@ -184,6 +189,83 @@ function doGet() {
         .success { color: #16a34a; }
         .error { color: #dc2626; }
 
+        /* Read-only ledger of recent transactions */
+        .ledger {
+          background: #ffffff;
+          margin-top: 16px;
+          padding: 24px;
+          border-radius: 20px;
+          box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+          width: 90%;
+          max-width: 380px;
+        }
+
+        .ledger-title {
+          font-size: 13px;
+          color: #6b7280;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          font-weight: 500;
+          margin: 0 0 8px 0;
+        }
+
+        .ledger-list {
+          list-style: none;
+          margin: 0;
+          padding: 0;
+        }
+
+        .ledger-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 12px;
+          padding: 12px 0;
+          border-top: 1px solid #f1f5f9;
+        }
+
+        .ledger-row:first-child {
+          border-top: none;
+        }
+
+        .ledger-row:last-child {
+          padding-bottom: 0;
+        }
+
+        .ledger-amount-col {
+          text-align: right;
+        }
+
+        .ledger-date,
+        .ledger-amount {
+          font-size: 15px;
+          font-weight: 500;
+          color: #1a1a2e;
+        }
+
+        .ledger-amount {
+          font-weight: 600;
+          font-variant-numeric: tabular-nums;
+        }
+
+        .ledger-amount.credit {
+          color: #16a34a;
+        }
+
+        .ledger-time,
+        .ledger-type {
+          font-size: 13px;
+          color: #6b7280;
+          margin-top: 2px;
+        }
+
+        .ledger-empty {
+          font-size: 14px;
+          color: #94a3b8;
+          text-align: center;
+          padding: 12px 0;
+        }
+
         /* Theme toggle button */
         .theme-toggle {
           position: fixed;
@@ -285,6 +367,38 @@ function doGet() {
 
         body.dark .success { color: #4ade80; }
         body.dark .error { color: #f87171; }
+
+        body.dark .ledger {
+          background: #1e293b;
+          box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        body.dark .ledger-title,
+        body.dark .ledger-time,
+        body.dark .ledger-type {
+          color: #94a3b8;
+        }
+
+        body.dark .ledger-row {
+          border-top-color: #334155;
+        }
+
+        body.dark .ledger-row:first-child {
+          border-top: none;
+        }
+
+        body.dark .ledger-date,
+        body.dark .ledger-amount {
+          color: #f1f5f9;
+        }
+
+        body.dark .ledger-amount.credit {
+          color: #4ade80;
+        }
+
+        body.dark .ledger-empty {
+          color: #64748b;
+        }
       </style>
     </head>
     <body>
@@ -309,6 +423,11 @@ function doGet() {
         </div>
         <div class="message" id="messageArea"></div>
       </div>
+
+      <section class="ledger" aria-labelledby="ledgerTitle">
+        <h2 class="ledger-title" id="ledgerTitle">Recent Transactions</h2>
+        <ul class="ledger-list" id="ledgerList"></ul>
+      </section>
 
       <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle dark mode">
         <span class="material-icons" id="themeIcon">dark_mode</span>
@@ -370,6 +489,7 @@ function doGet() {
         
         function onTransactionSuccess(newBalance) {
           document.querySelector('.balance').textContent = newBalance;
+          refreshLedger();
           showMessage("Transaction successful!", "success");
           setButtonsDisabled(false);
           setTimeout(hideTransactionForm, 1500);
@@ -402,6 +522,64 @@ function doGet() {
           event.preventDefault();
           submitTransaction();
         });
+
+        // Read-only ledger of the most recent transactions
+        function formatLedgerAmount(amount) {
+          if (typeof amount !== 'number') {
+            return '\\u2014';
+          }
+          return (amount < 0 ? '\\u2212' : '+') + '$' + Math.abs(amount).toFixed(2);
+        }
+
+        function createLedgerCell(className, text) {
+          const cell = document.createElement('div');
+          cell.className = className;
+          cell.textContent = text;
+          return cell;
+        }
+
+        function renderLedger(transactions) {
+          const list = document.getElementById('ledgerList');
+          list.replaceChildren();
+
+          if (!transactions || transactions.length === 0) {
+            const empty = document.createElement('li');
+            empty.className = 'ledger-empty';
+            empty.textContent = 'No transactions yet';
+            list.appendChild(empty);
+            return;
+          }
+
+          transactions.forEach(function(transaction) {
+            const row = document.createElement('li');
+            row.className = 'ledger-row';
+
+            const when = document.createElement('div');
+            when.appendChild(createLedgerCell('ledger-date', transaction.date));
+            when.appendChild(createLedgerCell('ledger-time', transaction.time));
+
+            const what = document.createElement('div');
+            what.className = 'ledger-amount-col';
+            const amountClass = transaction.amount > 0 ? 'ledger-amount credit' : 'ledger-amount';
+            what.appendChild(createLedgerCell(amountClass, formatLedgerAmount(transaction.amount)));
+            what.appendChild(createLedgerCell('ledger-type', transaction.type));
+
+            row.appendChild(when);
+            row.appendChild(what);
+            list.appendChild(row);
+          });
+        }
+
+        function refreshLedger() {
+          google.script.run
+            .withSuccessHandler(renderLedger)
+            .withFailureHandler(function(error) {
+              console.error('Could not refresh recent transactions: ' + error.message);
+            })
+            .getRecentTransactions();
+        }
+
+        renderLedger(${recentTransactionsJson});
       </script>
     </body>
     </html>
