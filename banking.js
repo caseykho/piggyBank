@@ -148,3 +148,41 @@ function addWithdrawalRow(amount) {
 
   return _addLedgerEntry("Withdrawal", amount, "-");
 }
+
+/**
+ * Returns the most recent ledger entries, newest first, for display in the web app.
+ * Dates are formatted here in the spreadsheet's time zone because
+ * google.script.run cannot return Date objects to the client.
+ * @param {number} count The maximum number of entries to return.
+ * @return {Array<{date: string, time: string, type: string, amount: ?number}>}
+ *     Withdrawal amounts are negative.
+ */
+function getRecentTransactions(count = 3) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ledgerSheet = ss.getSheetByName("Ledger");
+
+  if (!ledgerSheet) {
+    throw new Error('Sheet named "Ledger" could not be found.');
+  }
+
+  const lastRow = ledgerSheet.getLastRow();
+  if (lastRow < 2) {
+    return [];
+  }
+
+  const numRows = Math.min(count, lastRow - 1);
+  const rows = ledgerSheet.getRange(lastRow - numRows + 1, 1, numRows, 3).getValues();
+  const timeZone = ss.getSpreadsheetTimeZone();
+
+  return rows.reverse().map(([dateValue, type, amount]) => {
+    const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
+    const hasDate = dateValue !== "" && !isNaN(date.getTime());
+
+    return {
+      date: hasDate ? Utilities.formatDate(date, timeZone, "MMM d, yyyy") : String(dateValue),
+      time: hasDate ? Utilities.formatDate(date, timeZone, "h:mm a") : "",
+      type: String(type),
+      amount: typeof amount === 'number' ? (type === "Withdrawal" ? -amount : amount) : null,
+    };
+  });
+}
