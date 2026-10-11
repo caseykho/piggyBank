@@ -436,14 +436,39 @@ function doGet() {
       </button>
 
       <script>
-        // Theme toggle functionality. The initial theme comes from the
-        // Configuration sheet, so a toggle only lasts until the page reloads.
+        // Theme toggle functionality. The theme is stored in the Configuration
+        // sheet; the page switches right away and the sheet is updated in the background.
+        let savedTheme = document.body.classList.contains('dark') ? 'Dark' : 'Light';
+        let isSavingTheme = false;
+
         function toggleTheme() {
           const body = document.body;
           const icon = document.getElementById('themeIcon');
           body.classList.toggle('dark');
           const isDark = body.classList.contains('dark');
           icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+          saveTheme();
+        }
+
+        // Saves one theme at a time so quick toggles can't reach the sheet out of order.
+        function saveTheme() {
+          const theme = document.body.classList.contains('dark') ? 'Dark' : 'Light';
+          if (isSavingTheme || theme === savedTheme) {
+            return;
+          }
+
+          isSavingTheme = true;
+          google.script.run
+            .withSuccessHandler(function() {
+              isSavingTheme = false;
+              savedTheme = theme;
+              saveTheme(); // Catch up if the theme was toggled again while saving
+            })
+            .withFailureHandler(function(error) {
+              isSavingTheme = false;
+              showMessage("Error: Could not save theme. " + error.message, "error");
+            })
+            .setTheme(theme);
         }
 
         let currentTransactionType = '';
@@ -582,5 +607,23 @@ function doGet() {
     .setTitle(title)
     .addMetaTag('viewport', 'width=device-width, initial-scale=1')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
+
+/**
+ * Saves the web app theme to the Configuration sheet.
+ * @param {string} theme Either "Light" or "Dark".
+ */
+function setTheme(theme) {
+  if (theme !== "Light" && theme !== "Dark") {
+    throw new Error('Invalid theme: ' + theme);
+  }
+
+  const configSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Configuration");
+  if (!configSheet) {
+    throw new Error('Sheet named "Configuration" could not be found.');
+  }
+
+  // Writing the label too adds the row to sheets set up before the Theme setting existed.
+  configSheet.getRange("A6:B6").setValues([["Theme", theme]]);
 }
 
