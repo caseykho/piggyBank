@@ -12,8 +12,10 @@ function doGet() {
 
   const configSheet = ss.getSheetByName("Configuration");
   let title = "Piggy Bank"; // Default title
+  let isDarkMode = false; // Default to light mode
   if (configSheet) {
     title = configSheet.getRange("B4").getValue() || title;
+    isDarkMode = String(configSheet.getRange("B6").getValue()).trim().toLowerCase() === "dark";
   }
 
   // Escape "<" so sheet text can't close the <script> tag the JSON is embedded in.
@@ -401,7 +403,7 @@ function doGet() {
         }
       </style>
     </head>
-    <body>
+    <body class="${isDarkMode ? 'dark' : ''}">
       <div class="container">
         <h1>${title}</h1>
         <div class="balance-wrapper">
@@ -430,28 +432,44 @@ function doGet() {
       </section>
 
       <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle dark mode">
-        <span class="material-icons" id="themeIcon">dark_mode</span>
+        <span class="material-icons" id="themeIcon">${isDarkMode ? 'light_mode' : 'dark_mode'}</span>
       </button>
 
       <script>
-        // Theme toggle functionality
+        // Theme toggle functionality. The theme is stored in the Configuration
+        // sheet; the page switches right away and the sheet is updated in the background.
+        let savedTheme = document.body.classList.contains('dark') ? 'Dark' : 'Light';
+        let isSavingTheme = false;
+
         function toggleTheme() {
           const body = document.body;
           const icon = document.getElementById('themeIcon');
           body.classList.toggle('dark');
           const isDark = body.classList.contains('dark');
           icon.textContent = isDark ? 'light_mode' : 'dark_mode';
-          localStorage.setItem('theme', isDark ? 'dark' : 'light');
+          saveTheme();
         }
 
-        // Load saved theme on page load
-        (function() {
-          const savedTheme = localStorage.getItem('theme');
-          if (savedTheme === 'dark') {
-            document.body.classList.add('dark');
-            document.getElementById('themeIcon').textContent = 'light_mode';
+        // Saves one theme at a time so quick toggles can't reach the sheet out of order.
+        function saveTheme() {
+          const theme = document.body.classList.contains('dark') ? 'Dark' : 'Light';
+          if (isSavingTheme || theme === savedTheme) {
+            return;
           }
-        })();
+
+          isSavingTheme = true;
+          google.script.run
+            .withSuccessHandler(function() {
+              isSavingTheme = false;
+              savedTheme = theme;
+              saveTheme(); // Catch up if the theme was toggled again while saving
+            })
+            .withFailureHandler(function(error) {
+              isSavingTheme = false;
+              showMessage("Error: Could not save theme. " + error.message, "error");
+            })
+            .setTheme(theme);
+        }
 
         let currentTransactionType = '';
 
@@ -589,5 +607,23 @@ function doGet() {
     .setTitle(title)
     .addMetaTag('viewport', 'width=device-width, initial-scale=1')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
+
+/**
+ * Saves the web app theme to the Configuration sheet.
+ * @param {string} theme Either "Light" or "Dark".
+ */
+function setTheme(theme) {
+  if (theme !== "Light" && theme !== "Dark") {
+    throw new Error('Invalid theme: ' + theme);
+  }
+
+  const configSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Configuration");
+  if (!configSheet) {
+    throw new Error('Sheet named "Configuration" could not be found.');
+  }
+
+  // Writing the label too adds the row to sheets set up before the Theme setting existed.
+  configSheet.getRange("A6:B6").setValues([["Theme", theme]]);
 }
 
