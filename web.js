@@ -12,8 +12,10 @@ function doGet() {
 
   const configSheet = ss.getSheetByName("Configuration");
   let title = "Piggy Bank"; // Default title
+  let isDarkMode = false; // Default to light mode
   if (configSheet) {
     title = configSheet.getRange("B4").getValue() || title;
+    isDarkMode = String(configSheet.getRange("B6").getValue()).trim().toLowerCase() === "dark";
   }
 
   // Escape "<" so sheet text can't close the <script> tag the JSON is embedded in.
@@ -401,7 +403,7 @@ function doGet() {
         }
       </style>
     </head>
-    <body>
+    <body class="${isDarkMode ? 'dark' : ''}">
       <div class="container">
         <h1>${title}</h1>
         <div class="balance-wrapper">
@@ -430,28 +432,19 @@ function doGet() {
       </section>
 
       <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle dark mode">
-        <span class="material-icons" id="themeIcon">dark_mode</span>
+        <span class="material-icons" id="themeIcon">${isDarkMode ? 'light_mode' : 'dark_mode'}</span>
       </button>
 
       <script>
-        // Theme toggle functionality
+        // Theme toggle functionality. The initial theme comes from the
+        // Configuration sheet, so a toggle only lasts until the page reloads.
         function toggleTheme() {
           const body = document.body;
           const icon = document.getElementById('themeIcon');
           body.classList.toggle('dark');
           const isDark = body.classList.contains('dark');
           icon.textContent = isDark ? 'light_mode' : 'dark_mode';
-          localStorage.setItem('theme', isDark ? 'dark' : 'light');
         }
-
-        // Load saved theme on page load
-        (function() {
-          const savedTheme = localStorage.getItem('theme');
-          if (savedTheme === 'dark') {
-            document.body.classList.add('dark');
-            document.getElementById('themeIcon').textContent = 'light_mode';
-          }
-        })();
 
         let currentTransactionType = '';
 

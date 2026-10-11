@@ -68,6 +68,8 @@ This method uses the [Command Line Apps Script Projects (clasp)](https://github.
 
 Once set up, you can use the web app URL to add deposits and withdrawals to your ledger. The sheet will automatically calculate and add interest every week. You can customize the APY and other settings in the "Configuration" sheet.
 
+To switch the web app's theme, set the "Theme" value in the "Configuration" sheet (row 6, value in cell B6) to `Dark` or `Light`. If the value is blank or missing, the app uses light mode. The theme button in the corner switches the theme only until the page is reloaded.
+
 The bottom of the web app shows a read-only list of the three most recent transactions, with the date, time, amount, and type of each.
 
 
